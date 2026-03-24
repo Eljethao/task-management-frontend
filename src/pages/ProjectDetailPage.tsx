@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
@@ -333,8 +333,6 @@ function ProjectEditModal({
   const [newDocFiles, setNewDocFiles] = useState<File[]>([]);
   const [existingDocs, setExistingDocs] = useState<ProjectDocument[]>(project.documents ?? []);
   const [removedDocUrls, setRemovedDocUrls] = useState<string[]>([]);
-  const logoRef = useRef<HTMLInputElement>(null);
-  const docsRef = useRef<HTMLInputElement>(null);
 
   // Member picker state
   const [allUsers, setAllUsers] = useState<User[]>([]);
@@ -382,8 +380,9 @@ function ProjectEditModal({
   };
 
   const handleDocsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewDocFiles((prev) => [...prev, ...Array.from(e.target.files ?? [])]);
+    const files = Array.from(e.target.files ?? []);
     e.target.value = '';
+    setNewDocFiles((prev) => [...prev, ...files]);
   };
 
   const removeExistingDoc = (url: string) => {
@@ -443,23 +442,21 @@ function ProjectEditModal({
           <div>
             <label className="label">{t('projects.logo')}</label>
             <div className="flex items-center gap-4">
-              <div
-                className="w-16 h-16 rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden cursor-pointer hover:border-primary-400 transition-colors bg-gray-50"
-                onClick={() => logoRef.current?.click()}
-              >
+              <label className="w-16 h-16 rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden cursor-pointer hover:border-primary-400 transition-colors bg-gray-50">
                 {logoPreview
                   ? <img src={logoPreview} alt="logo" className="w-full h-full object-cover" />
                   : <span className="text-2xl">🖼️</span>
                 }
-              </div>
+                <input type="file" accept="image/*" className="absolute w-0 h-0 opacity-0 overflow-hidden" onChange={handleLogoChange} />
+              </label>
               <div>
-                <button type="button" className="btn-secondary text-xs" onClick={() => logoRef.current?.click()}>
+                <label className="btn-secondary text-xs cursor-pointer">
                   {logoPreview ? t('projects.changeLogo') : t('projects.uploadLogo')}
-                </button>
+                  <input type="file" accept="image/*" className="absolute w-0 h-0 opacity-0 overflow-hidden" onChange={handleLogoChange} />
+                </label>
                 <p className="text-xs text-gray-400 mt-1">{t('projects.logoHint')}</p>
               </div>
             </div>
-            <input ref={logoRef} type="file" accept="image/*" className="hidden" onChange={handleLogoChange} />
           </div>
 
           {/* Name */}
@@ -618,14 +615,11 @@ function ProjectEditModal({
           {/* Add new docs */}
           <div>
             <label className="label">{t('projects.uploadDocuments')}</label>
-            <div
-              className="border-2 border-dashed border-gray-300 rounded-xl p-5 text-center cursor-pointer hover:border-primary-400 hover:bg-primary-50/30 transition-colors"
-              onClick={() => docsRef.current?.click()}
-            >
+            <label className="border-2 border-dashed border-gray-300 rounded-xl p-5 text-center block cursor-pointer hover:border-primary-400 hover:bg-primary-50/30 transition-colors">
               <p className="text-sm text-gray-500">Click to attach files</p>
               <p className="text-xs text-gray-400 mt-1">PDF, Excel, Word · up to 10 files · 20 MB each</p>
-            </div>
-            <input ref={docsRef} type="file" multiple accept=".pdf,.xls,.xlsx,.doc,.docx" className="hidden" onChange={handleDocsChange} />
+              <input type="file" multiple accept=".pdf,.xls,.xlsx,.doc,.docx" className="absolute w-0 h-0 opacity-0 overflow-hidden" onChange={handleDocsChange} />
+            </label>
             {newDocFiles.length > 0 && (
               <div className="mt-2 space-y-1.5">
                 {newDocFiles.map((f, i) => (
