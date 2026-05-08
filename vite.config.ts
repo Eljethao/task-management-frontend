@@ -3,6 +3,9 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 
 export default defineConfig({
+  // VITE_BASE_PATH is injected by CI for GitHub Pages (e.g. /task-management/).
+  // Falls back to '/' for local dev and custom-domain deployments.
+  base: process.env.VITE_BASE_PATH ?? '/',
   plugins: [react()],
   resolve: {
     alias: {
