@@ -2,8 +2,7 @@ import axios from 'axios';
 import { useAuthStore } from '../stores/authStore';
 
 const api = axios.create({
-  // VITE_API_URL=https://api.myapp.com in production; falls back to /api for local dev proxy
-  baseURL: import.meta.env.VITE_API_URL ?? '/api',
+  baseURL: 'http://52.77.223.22:8080/api',
   timeout: 10000,
   headers: { 'Content-Type': 'application/json' },
 });
