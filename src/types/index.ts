@@ -1,9 +1,26 @@
 export type UserRole = 'Admin' | 'Developer' | 'Project Manager' | 'Tester' | 'UXUI' | 'Lead Developer';
 export type TaskStatus = 'To Do' | 'In Progress' | 'Code Review' | 'Testing' | 'Done';
 export type TaskPriority = 'Low' | 'Medium' | 'High' | 'Critical';
+export type BlockedReason =
+  | 'Waiting for API'
+  | 'Waiting for Confirmation'
+  | 'Tracking'
+  | 'Postponed'
+  | 'Continue Next Week'
+  | 'Waiting';
+export type PriorityLevel = 1 | 2 | 3;
+export const BLOCKED_REASONS: BlockedReason[] = [
+  'Waiting for API',
+  'Waiting for Confirmation',
+  'Tracking',
+  'Postponed',
+  'Continue Next Week',
+  'Waiting',
+];
 export type ProjectStatus = 'Planning' | 'Active' | 'On Hold' | 'Completed' | 'Archived';
 export type ProjectPhase = 'Analysis' | 'Development' | 'Testing' | 'Completed' | 'On Hold' | 'Archived';
 export type TimelineStatus = 'On Track' | 'At Risk' | 'Delayed' | 'Completed';
+export type InitiativeStatus = 'Planned' | 'In Progress' | 'Done' | 'On Hold';
 
 export interface User {
   _id: string;
@@ -44,20 +61,82 @@ export interface Task {
   _id: string;
   projectId: string | Project;
   epicId?: string;
+  teamId?: string | null;
+  sprintId?: string | null;
   title: string;
   description: string;
   status: TaskStatus;
   priority: TaskPriority;
+  priorityLevel?: PriorityLevel | null;
+  blockedReason?: BlockedReason | null;
   assigneeId?: User | string;
   reporterId: User | string;
   storyPoints?: number;
   tags: string[];
   startDate?: string;
   endDate?: string;
+  completedAt?: string | null;
   githubPrLink?: string;
+  notes?: string;
   order: number;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface Team {
+  _id: string;
+  name: string;
+  leadId?: User | string | null;
+  memberIds: (User | string)[];
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Sprint {
+  _id: string;
+  name: string;
+  weekNumber: number;
+  year: number;
+  startDate: string;
+  endDate: string;
+  teamId?: Team | string | null;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface Initiative {
+  _id: string;
+  title: string;
+  description?: string;
+  quarter: string;
+  ownerId: User | string;
+  externalLink?: string;
+  status: InitiativeStatus;
+  progressNotes?: { body: string; createdAt: string; userId: User | string }[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface WeeklyReportRow {
+  user: { _id: string; name: string; role: string };
+  projects: {
+    project: { _id: string; name: string };
+    tasks: Task[];
+  }[];
+  totals: {
+    total: number;
+    done: number;
+    inProgress: number;
+    blocked: number;
+    toDo: number;
+  };
+}
+
+export interface WeeklyReport {
+  sprint: Sprint | null;
+  team: Team | null;
+  rows: WeeklyReportRow[];
 }
 
 export interface Standup {

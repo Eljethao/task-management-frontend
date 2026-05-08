@@ -3,18 +3,21 @@ import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import api from '../lib/axios';
-import { Task, TaskStatus, TaskPriority, User } from '../types';
+import { Task, TaskStatus, TaskPriority, BlockedReason, BLOCKED_REASONS, User } from '../types';
 
 type FormData = {
   title: string;
   description: string;
   status: TaskStatus;
   priority: TaskPriority;
+  priorityLevel: '' | '1' | '2' | '3';
+  blockedReason: '' | BlockedReason;
   assigneeId: string;
   storyPoints: number;
   tags: string;
   startDate: string;
   endDate: string;
+  notes: string;
   githubPrLink: string;
 };
 
@@ -56,11 +59,14 @@ export default function TaskModal({
       description: task?.description ?? '',
       status:      task?.status ?? 'To Do',
       priority:    task?.priority ?? 'Medium',
+      priorityLevel: task?.priorityLevel ? (String(task.priorityLevel) as '1' | '2' | '3') : '',
+      blockedReason: task?.blockedReason ?? '',
       assigneeId:  resolvedAssigneeId,
       storyPoints: task?.storyPoints ?? 0,
       tags:        (task?.tags ?? []).join(', '),
       startDate:   task?.startDate ? task.startDate.split('T')[0] : '',
       endDate:     task?.endDate   ? task.endDate.split('T')[0]   : '',
+      notes:       task?.notes ?? '',
       githubPrLink: task?.githubPrLink ?? '',
     },
   });
@@ -83,6 +89,9 @@ export default function TaskModal({
         endDate:      data.endDate   ? new Date(data.endDate).toISOString()   : undefined,
         assigneeId:   data.assigneeId || undefined,
         githubPrLink: data.githubPrLink || undefined,
+        priorityLevel: data.priorityLevel ? (Number(data.priorityLevel) as 1 | 2 | 3) : null,
+        blockedReason: data.blockedReason || null,
+        notes:        data.notes || undefined,
       };
 
       if (isEdit) {
@@ -174,6 +183,28 @@ export default function TaskModal({
             </div>
           </div>
 
+          {/* Priority level + Blocked reason */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="label">{t('tasks.priorityLevel')}</label>
+              <select className="input" {...register('priorityLevel')}>
+                <option value="">—</option>
+                <option value="1">P1</option>
+                <option value="2">P2</option>
+                <option value="3">P3</option>
+              </select>
+            </div>
+            <div>
+              <label className="label">{t('tasks.blockedReason')}</label>
+              <select className="input" {...register('blockedReason')}>
+                <option value="">{t('tasks.notBlocked')}</option>
+                {BLOCKED_REASONS.map((r) => (
+                  <option key={r} value={r}>{t(`blockedReason.${r}`)}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
           {/* Assignee + Story Points */}
           <div className="grid grid-cols-2 gap-3">
             <div>
@@ -227,6 +258,12 @@ export default function TaskModal({
               {t('tasks.tags')} <span className="text-gray-300 font-normal normal-case">({t('tasks.tagsHint')})</span>
             </label>
             <input className="input" placeholder="frontend, auth, bug…" {...register('tags')} />
+          </div>
+
+          {/* Notes */}
+          <div>
+            <label className="label">{t('tasks.notes')}</label>
+            <textarea className="input resize-none" rows={2} {...register('notes')} />
           </div>
 
           {/* GitHub PR */}

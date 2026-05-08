@@ -7,6 +7,10 @@ import StandupPage from './pages/StandupPage';
 import ProjectsPage from './pages/ProjectsPage';
 import ProjectDetailPage from './pages/ProjectDetailPage';
 import UsersPage from './pages/UsersPage';
+import WeeklyReportPage from './pages/WeeklyReportPage';
+import TeamsPage from './pages/TeamsPage';
+import InitiativesPage from './pages/InitiativesPage';
+import ImportPage from './pages/ImportPage';
 import Layout from './components/Layout';
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
@@ -14,14 +18,24 @@ const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
 };
 
-const DASHBOARD_ROLES = ['Admin', 'Project Manager'];
-const ADMIN_ROLES = ['Admin', 'Project Manager'];
+// Admin + PM + Lead Developer — Dashboard and Teams
+const ELEVATED_ROLES = ['Admin', 'Project Manager', 'Lead Developer'];
+// Admin + PM only — Import and Users management
+const ADMIN_MANAGER_ROLES = ['Admin', 'Project Manager'];
+
+const ElevatedRoute = ({ children }: { children: React.ReactNode }) => {
+  const user = useAuthStore((s) => s.user);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (!user || !ELEVATED_ROLES.includes(user.role)) return <Navigate to="/kanban" replace />;
+  return <>{children}</>;
+};
 
 const AdminManagerRoute = ({ children }: { children: React.ReactNode }) => {
   const user = useAuthStore((s) => s.user);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   if (!isAuthenticated) return <Navigate to="/login" replace />;
-  if (!user || !DASHBOARD_ROLES.includes(user.role)) return <Navigate to="/kanban" replace />;
+  if (!user || !ADMIN_MANAGER_ROLES.includes(user.role)) return <Navigate to="/kanban" replace />;
   return <>{children}</>;
 };
 
@@ -29,7 +43,7 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
   const user = useAuthStore((s) => s.user);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   if (!isAuthenticated) return <Navigate to="/login" replace />;
-  if (!user || !ADMIN_ROLES.includes(user.role)) return <Navigate to="/dashboard" replace />;
+  if (!user || user.role !== 'Admin') return <Navigate to="/dashboard" replace />;
   return <>{children}</>;
 };
 
@@ -54,15 +68,33 @@ export default function App() {
         <Route
           path="dashboard"
           element={
-            <AdminManagerRoute>
+            <ElevatedRoute>
               <DashboardPage />
-            </AdminManagerRoute>
+            </ElevatedRoute>
           }
         />
         <Route path="kanban" element={<KanbanPage />} />
         <Route path="standup" element={<StandupPage />} />
         <Route path="projects" element={<ProjectsPage />} />
         <Route path="projects/:id" element={<ProjectDetailPage />} />
+        <Route path="weekly" element={<WeeklyReportPage />} />
+        <Route path="initiatives" element={<InitiativesPage />} />
+        <Route
+          path="teams"
+          element={
+            <ElevatedRoute>
+              <TeamsPage />
+            </ElevatedRoute>
+          }
+        />
+        <Route
+          path="import"
+          element={
+            <AdminManagerRoute>
+              <ImportPage />
+            </AdminManagerRoute>
+          }
+        />
         <Route
           path="users"
           element={

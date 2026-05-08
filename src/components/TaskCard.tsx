@@ -72,11 +72,18 @@ export default function TaskCard({ task, isDragging = false, onClick, onEdit, on
           ))}
         </div>
 
-        {/* priority badge */}
-        <span className={`badge text-xs ${PRIORITY_STYLES[task.priority]}`}>
-          <span className={`w-1.5 h-1.5 rounded-full mr-1 ${PRIORITY_DOT[task.priority]}`} />
-          {t(`taskPriority.${task.priority}`)}
-        </span>
+        <div className="flex items-center gap-1.5">
+          {task.priorityLevel && (
+            <span className="badge bg-primary-100 text-primary-700 text-[10px] font-bold">
+              P{task.priorityLevel}
+            </span>
+          )}
+          {/* priority badge */}
+          <span className={`badge text-xs ${PRIORITY_STYLES[task.priority]}`}>
+            <span className={`w-1.5 h-1.5 rounded-full mr-1 ${PRIORITY_DOT[task.priority]}`} />
+            {t(`taskPriority.${task.priority}`)}
+          </span>
+        </div>
       </div>
 
       {/* ── Clickable body — opens edit modal ── */}
@@ -92,6 +99,15 @@ export default function TaskCard({ task, isDragging = false, onClick, onEdit, on
         {/* Description */}
         {task.description && (
           <p className="text-xs text-gray-400 line-clamp-2 mb-2">{task.description}</p>
+        )}
+
+        {/* Blocked reason */}
+        {task.blockedReason && (
+          <div className="mb-2">
+            <span className="badge bg-amber-50 text-amber-700 border border-amber-200 text-[11px]">
+              ⏳ {t(`blockedReason.${task.blockedReason}`)}
+            </span>
+          </div>
         )}
 
         {/* Tags */}

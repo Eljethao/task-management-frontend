@@ -3,6 +3,7 @@ import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import api from '../lib/axios';
 import { DashboardMetrics, WorkloadItem, Standup, ProjectOverviewItem, PeakPeriod, ProjectPhase, TimelineStatus } from '../types';
+import { useAuthStore } from '../stores/authStore';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -185,6 +186,10 @@ function ProjectRow({ project }: { project: ProjectOverviewItem }) {
 
 export default function DashboardPage() {
   const { t } = useTranslation();
+  const user = useAuthStore((s) => s.user);
+  const isLeadDev = user?.role === 'Lead Developer';
+  const memberParam = isLeadDev && user?._id ? `?memberId=${user._id}` : '';
+
   const [metrics, setMetrics]               = useState<DashboardMetrics | null>(null);
   const [projectOverview, setProjectOverview] = useState<ProjectOverviewItem[]>([]);
   const [workload, setWorkload]             = useState<WorkloadItem[]>([]);
@@ -196,9 +201,9 @@ export default function DashboardPage() {
     setLoading(true);
     try {
       const [metricsRes, projectsRes, workloadRes, blockersRes] = await Promise.all([
-        api.get<{ data: { metrics: DashboardMetrics } }>('/dashboard/metrics'),
-        api.get<{ data: { projects: ProjectOverviewItem[] } }>('/dashboard/projects'),
-        api.get<{ data: { workload: WorkloadItem[]; peakPeriod: PeakPeriod | null } }>('/dashboard/workload'),
+        api.get<{ data: { metrics: DashboardMetrics } }>(`/dashboard/metrics${memberParam}`),
+        api.get<{ data: { projects: ProjectOverviewItem[] } }>(`/dashboard/projects${memberParam}`),
+        api.get<{ data: { workload: WorkloadItem[]; peakPeriod: PeakPeriod | null } }>(`/dashboard/workload${memberParam}`),
         api.get<{ data: { blockers: Standup[] } }>('/dashboard/blockers'),
       ]);
       setMetrics(metricsRes.data.data?.metrics ?? null);
@@ -213,7 +218,7 @@ export default function DashboardPage() {
     }
   }, []);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => { fetchData(); }, [fetchData, memberParam]);
 
   if (loading) {
     return (
@@ -240,7 +245,14 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">{t('dashboard.title')}</h1>
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-2xl font-bold text-gray-900">{t('dashboard.title')}</h1>
+            {isLeadDev && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-primary-50 text-primary-700 border border-primary-200">
+                My Projects
+              </span>
+            )}
+          </div>
           <p className="text-sm text-gray-500 mt-0.5 font-medium">
             {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
           </p>
