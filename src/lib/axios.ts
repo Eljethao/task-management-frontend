@@ -2,7 +2,8 @@ import axios from 'axios';
 import { useAuthStore } from '../stores/authStore';
 
 const api = axios.create({
-  baseURL: 'http://52.77.223.22:8080/api',
+  // baseURL: 'http://52.77.223.22:8080/api',
+  baseURL: 'https://52.77.223.22/api',
   timeout: 10000,
   headers: { 'Content-Type': 'application/json' },
 });
