@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import pkg from '../../package.json';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -98,6 +99,10 @@ export default function LoginPage() {
 
         <p className="text-center text-xs text-primary-600/50 mt-6 font-medium">
           {t('auth.contactAdmin')}
+        </p>
+
+        <p className="text-center text-[11px] text-primary-400/50 mt-4">
+          v{pkg.version}
         </p>
       </div>
     </div>
