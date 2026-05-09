@@ -18,7 +18,7 @@ const EMPTY: TeamForm = { name: '', description: '', leadId: '', memberIds: [] }
 export default function TeamsPage() {
   const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
-  const isLeadDev = user?.role === 'Lead Developer';
+  const isLeadDev = user?.role === 'Lead Team';
 
   const [teams, setTeams] = useState<Team[]>([]);
   const [users, setUsers] = useState<User[]>([]);

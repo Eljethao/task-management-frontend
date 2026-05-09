@@ -187,7 +187,7 @@ function ProjectRow({ project }: { project: ProjectOverviewItem }) {
 export default function DashboardPage() {
   const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
-  const isLeadDev = user?.role === 'Lead Developer';
+  const isLeadDev = user?.role === 'Lead Team';
   const memberParam = isLeadDev && user?._id ? `?memberId=${user._id}` : '';
 
   const [metrics, setMetrics]               = useState<DashboardMetrics | null>(null);

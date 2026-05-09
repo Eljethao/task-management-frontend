@@ -109,7 +109,7 @@ const lo = {
     'Admin': 'ຜູ້ດູແລ',
     'Developer': 'ນັກພັດທະນາ',
     'Project Manager': 'ຜູ້ຈັດການໂຄງການ',
-    'Lead Developer': 'ຫົວໜ້ານັກພັດທະນາ',
+    'Lead Team': 'ຫົວໜ້າທີມ',
     'Tester': 'ນັກທົດສອບ',
     'UXUI': 'UX/UI',
   },

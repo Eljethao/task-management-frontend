@@ -1,5 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useAuthStore } from './stores/authStore';
+import api from './lib/axios';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import KanbanPage from './pages/KanbanPage';
@@ -18,8 +20,8 @@ const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
 };
 
-// Admin + PM + Lead Developer — Dashboard and Teams
-const ELEVATED_ROLES = ['Admin', 'Project Manager', 'Lead Developer'];
+// Admin + PM + Lead Team — Dashboard and Teams
+const ELEVATED_ROLES = ['Admin', 'Project Manager', 'Lead Team'];
 // Admin + PM only — Import and Users management
 const ADMIN_MANAGER_ROLES = ['Admin', 'Project Manager'];
 
@@ -49,6 +51,18 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
 
 export default function App() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const token = useAuthStore((s) => s.token);
+  const updateUser = useAuthStore((s) => s.updateUser);
+
+  // Re-fetch the user profile on every mount so stale cached roles (e.g. after
+  // a server-side role rename) are corrected without requiring a manual re-login.
+  useEffect(() => {
+    if (!isAuthenticated || !token) return;
+    api.get('/auth/me').then((res) => {
+      const fresh = res.data?.data?.user;
+      if (fresh) updateUser(fresh);
+    }).catch(() => {/* silently ignore — the cached user is still usable */});
+  }, [isAuthenticated, token, updateUser]);
 
   return (
     <Routes>

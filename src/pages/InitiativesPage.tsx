@@ -12,7 +12,7 @@ const STATUS_STYLES: Record<InitiativeStatus, string> = {
   'On Hold': 'bg-amber-50 text-amber-700',
 };
 
-const PRIVILEGED = ['Admin', 'Project Manager', 'Lead Developer'];
+const PRIVILEGED = ['Admin', 'Project Manager', 'Lead Team'];
 
 interface InitForm {
   _id?: string;

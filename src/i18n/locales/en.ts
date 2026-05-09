@@ -109,7 +109,7 @@ const en = {
     'Admin': 'Admin',
     'Developer': 'Developer',
     'Project Manager': 'Project Manager',
-    'Lead Developer': 'Lead Developer',
+    'Lead Team': 'Lead Team',
     'Tester': 'Tester',
     'UXUI': 'UX/UI',
   },

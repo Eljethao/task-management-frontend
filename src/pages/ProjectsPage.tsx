@@ -405,8 +405,8 @@ export default function ProjectsPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
-  const canEdit = user?.role === 'Admin' || user?.role === 'Project Manager' || user?.role === 'Lead Developer';
-  const canDelete = user?.role === 'Admin' || user?.role === 'Project Manager' || user?.role === 'Lead Developer';
+  const canEdit = user?.role === 'Admin' || user?.role === 'Project Manager' || user?.role === 'Lead Team';
+  const canDelete = user?.role === 'Admin' || user?.role === 'Project Manager' || user?.role === 'Lead Team';
 
   const [projects, setProjects] = useState<Project[]>([]);
   const [modalProject, setModalProject] = useState<Project | undefined>();

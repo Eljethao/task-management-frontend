@@ -10,12 +10,12 @@ import { useAuthStore } from '../stores/authStore';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const ROLES: UserRole[] = ['Admin', 'Project Manager', 'Lead Developer', 'Developer', 'Tester', 'UXUI'];
+const ROLES: UserRole[] = ['Admin', 'Project Manager', 'Lead Team', 'Developer', 'Tester', 'UXUI'];
 
 const ROLE_CFG: Record<UserRole, { bg: string; text: string; border: string }> = {
   Admin:            { bg: 'bg-primary-50',  text: 'text-primary-700',  border: 'border-primary-200' },
   'Project Manager':{ bg: 'bg-amber-50',    text: 'text-amber-700',    border: 'border-amber-200' },
-  'Lead Developer': { bg: 'bg-violet-50',   text: 'text-violet-700',   border: 'border-violet-200' },
+  'Lead Team': { bg: 'bg-violet-50',   text: 'text-violet-700',   border: 'border-violet-200' },
   Developer:        { bg: 'bg-emerald-50',  text: 'text-emerald-700',  border: 'border-emerald-200' },
   Tester:           { bg: 'bg-rose-50',     text: 'text-rose-700',     border: 'border-rose-200' },
   UXUI:             { bg: 'bg-fuchsia-50',  text: 'text-fuchsia-700',  border: 'border-fuchsia-200' },
@@ -23,7 +23,7 @@ const ROLE_CFG: Record<UserRole, { bg: string; text: string; border: string }> =
 
 // ─── Schemas ─────────────────────────────────────────────────────────────────
 
-const ROLE_ENUM = ['Admin', 'Developer', 'Project Manager', 'Tester', 'UXUI', 'Lead Developer'] as const;
+const ROLE_ENUM = ['Admin', 'Developer', 'Project Manager', 'Tester', 'UXUI', 'Lead Team'] as const;
 
 const createSchema = z.object({
   name:       z.string().min(2, 'Name must be at least 2 characters'),
