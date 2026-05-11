@@ -57,13 +57,11 @@ export default function KanbanPage() {
   const fetchProjects = useCallback(async () => {
     try {
       const res = await api.get<{ data: { projects: Project[] } }>('/projects');
-      const p = res.data.data?.projects ?? [];
-      setProjects(p);
-      if (p.length > 0 && !selectedProject) setSelectedProject(p[0]._id);
+      setProjects(res.data.data?.projects ?? []);
     } catch {
       toast.error('Failed to load projects');
     }
-  }, [selectedProject]);
+  }, []);
 
   // ── Fetch team members (for PM filter) ─────────────────────────────────────
   const fetchMembers = useCallback(async () => {
@@ -78,12 +76,12 @@ export default function KanbanPage() {
 
   // ── Fetch tasks ─────────────────────────────────────────────────────────────
   const fetchTasks = useCallback(async () => {
-    if (!selectedProject) return;
     setLoading(true);
     try {
-      let url = `/tasks?projectId=${selectedProject}`;
-      if (isPrivileged && selectedMember) url += `&assigneeId=${selectedMember}`;
-      const res = await api.get<{ data: { tasks: Task[] } }>(url);
+      const params = new URLSearchParams();
+      if (selectedProject) params.set('projectId', selectedProject);
+      if (isPrivileged && selectedMember) params.set('assigneeId', selectedMember);
+      const res = await api.get<{ data: { tasks: Task[] } }>(`/tasks?${params}`);
       setTasks(res.data.data?.tasks ?? []);
     } catch {
       toast.error('Failed to load tasks');
@@ -169,11 +167,12 @@ export default function KanbanPage() {
         <div className="flex items-center gap-3">
           {/* Project selector */}
           <select
-            className="input w-44 text-sm"
+            className="input w-48 text-sm"
             value={selectedProject}
             onChange={(e) => { setSelectedProject(e.target.value); setSelectedMember(''); }}
           >
-            {projects.length === 0 && <option value="">{t('kanban.noProject')}</option>}
+            <option value="">All Projects</option>
+            {projects.length === 0 && <option disabled>— no projects —</option>}
             {projects.map((p) => (
               <option key={p._id} value={p._id}>{p.name}</option>
             ))}
@@ -195,8 +194,7 @@ export default function KanbanPage() {
 
           {/* New Task button */}
           <button
-            className="btn-primary gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={!selectedProject}
+            className="btn-primary gap-1.5"
             onClick={openNewTask}
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
@@ -238,17 +236,7 @@ export default function KanbanPage() {
       )}
 
       {/* ── Empty state ─────────────────────────────────────────────────────── */}
-      {!selectedProject ? (
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center text-gray-300">
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-16 h-16 mx-auto mb-4 opacity-40" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
-            </svg>
-            <p className="font-semibold text-sm text-gray-400">No project selected</p>
-            <p className="text-xs mt-1">Select a project to view its board</p>
-          </div>
-        </div>
-      ) : tasks.length === 0 ? (
+      {tasks.length === 0 ? (
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="w-16 h-16 rounded-2xl bg-primary-50 flex items-center justify-center mx-auto mb-4">
@@ -257,10 +245,14 @@ export default function KanbanPage() {
               </svg>
             </div>
             <p className="font-semibold text-gray-500 text-sm">
-              {isPrivileged ? 'No tasks in this project yet' : t('kanban.noTasks')}
+              {isPrivileged
+                ? (selectedProject ? 'No tasks in this project yet' : 'No tasks found')
+                : t('kanban.noTasks')}
             </p>
             <p className="text-xs text-gray-400 mt-1">
-              {isPrivileged ? 'Create the first task to get started' : 'Create your first task below'}
+              {isPrivileged
+                ? (selectedProject ? 'Create the first task to get started' : 'Select a project or create a task')
+                : 'Create your first task below'}
             </p>
             <button onClick={openNewTask} className="btn-primary mt-4 text-sm">
               + {t('kanban.createTask')}
@@ -289,6 +281,7 @@ export default function KanbanPage() {
                         <TaskCard
                           key={task._id}
                           task={task}
+                          showProject={!selectedProject}
                           onClick={() => openEdit(task)}
                           onEdit={() => openEdit(task)}
                           onDelete={isPrivileged ? () => handleDelete(task) : undefined}
